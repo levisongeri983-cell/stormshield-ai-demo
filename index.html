@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StormShield AI — Live Prototype</title>
-<meta name="description" content="StormShield AI — flood risk coordination prototype for Tana River County, Kenya. Live GloFAS data, explainable recommendations (Trace), and multi-agency action routing.">
-<meta property="og:title" content="StormShield AI — Live Coordination Prototype">
-<meta property="og:description" content="An interactive prototype of a climate resilience coordination layer: live flood risk map, explainable AI recommendations, and multi-agency response routing for Tana River County, Kenya.">
+<title>StormShield AI — Prototype demo (simulated scenario)</title>
+<meta name="description" content="StormShield AI — demo of a flood-risk coordination prototype for Tana River County, Kenya. Runs on a simulated scenario with illustrative data and thresholds: rule-based risk scoring, explainable recommendations (Trace) and routing to responsible agencies.">
+<meta property="og:title" content="StormShield AI — Coordination prototype demo (simulated scenario)">
+<meta property="og:description" content="An interactive demo of a flood-risk coordination prototype: simulated flood scenario, rule-based explainable recommendations, and routing to responsible agencies for Tana River County, Kenya.">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="StormShield AI — Live Coordination Prototype">
-<meta name="twitter:description" content="Live flood risk map, explainable recommendations, and multi-agency routing — Module 1 of a climate resilience operating system.">
+<meta name="twitter:title" content="StormShield AI — Coordination prototype demo (simulated scenario)">
+<meta name="twitter:description" content="Simulated flood scenario, explainable rule-based recommendations, and agency routing — Module 1 of a modular coordination prototype.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 220'%3E%3Cpath d='M100,8 L178,38 L178,108 C178,168 140,202 100,214 C60,202 22,168 22,108 L22,38 Z' fill='%230B2E33' stroke='%232E7D8C' stroke-width='9'/%3E%3Cpath d='M58,58 C58,90 88,100 100,150' fill='none' stroke='%232E7D8C' stroke-width='8'/%3E%3Cpath d='M100,42 L100,150' fill='none' stroke='%232E7D8C' stroke-width='8'/%3E%3Cpath d='M142,58 C142,90 112,100 100,150' fill='none' stroke='%232E7D8C' stroke-width='8'/%3E%3Ccircle cx='100' cy='150' r='10' fill='%232E7D8C'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -149,6 +149,11 @@
   .arrow-b{color:#5C8A8E; font-size:16px;}
   .arch p{font-size:12.5px; color:#B9CFD1; line-height:1.6; max-width:800px; margin:0;}
 
+  .pill.sim{background:rgba(201,138,30,0.18); color:#F0C97A;}
+  .dot.sim{background:#E0A93B;}
+  .notice{background:#FFF8E6; border:1px solid #E6CF8C; border-left:4px solid var(--warning); border-radius:10px; padding:14px 18px; margin-bottom:24px; font-size:13px; line-height:1.55; color:#4A3A12;}
+  .notice ul{margin:6px 0 0; padding-left:18px;}
+  .notice li{margin-bottom:3px;}
   footer{text-align:center; padding:24px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--muted);}
   @media (max-width:640px){
     header, main{padding-left:18px; padding-right:18px;}
@@ -189,27 +194,38 @@
       <div>
         <div class="wordmark">STORMSHIELD AI — PROTOTYPE</div>
         <h1>Coordination Platform</h1>
-        <p class="tagline">The climate resilience intelligence layer — turning fragmented disaster data into a single, prioritized, multi-agency action network. This is Module 1 (flood, Tana River County, Kenya) — proof-of-concept for the full operating system, not the operating system itself.</p>
-        <p class="tagline" style="margin-top:6px; font-size:12px; color:#7FA8AC;">Watershed Kernel (coordination core) · Trace (explainability layer)</p>
+        <p class="tagline">A prototype coordination layer for flood response: it turns a river-risk reading into a prioritized, explainable action addressed to the responsible agency. This page is Module 1 (flood, Tana River County, Kenya) running on a simulated scenario. It is a proof of concept, not a deployed system.</p>
+        <p class="tagline" style="margin-top:6px; font-size:12px; color:#7FA8AC;">Watershed Kernel (coordination core) · Trace (explainability layer) · No machine-learning model is used</p>
       </div>
     </div>
     <div class="module-pills">
-      <div class="pill live"><span class="dot live"></span>FLOOD MODULE — LIVE</div>
-      <div class="pill live"><span class="dot live"></span>TRACE — EXPLAINABILITY LAYER</div>
+      <div class="pill sim"><span class="dot sim"></span>FLOOD MODULE — SIMULATED DATA</div>
+      <div class="pill live"><span class="dot live"></span>TRACE — RULE-BASED</div>
       <div class="pill stub"><span class="dot stub"></span>WILDFIRE MODULE — STUB</div>
     </div>
   </div>
 </header>
 
 <main>
-  <div class="section-label">Replay — day by day, as the system would have seen it</div>
+  <div class="notice">
+    <b>What you are looking at: a simulated scenario, not live monitoring.</b>
+    <ul>
+      <li>Water levels, upstream rainfall and the seven days are scripted illustrative values. They are not GloFAS data and not a real event.</li>
+      <li>Danger thresholds are placeholders, not official flood-warning levels. Populations, shelters, contacts and organizations are illustrative. No agency has been contacted for this demo or uses it.</li>
+      <li>Nothing is sent. "Recommended" and "routed" mean what the system would suggest, and to whom.</li>
+      <li>The Python prototype behind this page contains the GloFAS integration and automated tests. This page re-implements its scoring logic on scripted data. Not yet validated with residents or responders.</li>
+      <li><a href="backtest.html">See the retrospective replay of the April–June 2024 Tana River floods, which uses GloFAS-based modelled discharge instead of scripted values →</a></li>
+    </ul>
+  </div>
+
+  <div class="section-label">Simulated week — day by day, as the system would have scored it</div>
   <div class="replay-box">
-    <div class="replay-date"><span>SELECTED DATE</span><span id="dateReadout">2026-07-24</span></div>
+    <div class="replay-date"><span>SCENARIO DAY</span><span id="dateReadout">Day 1</span></div>
     <div class="slider-wrap">
       <input type="range" id="daySlider" min="0" max="6" value="0" step="1">
-      <div class="slider-ticks"><span>Jul 24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>Jul 30</span></div>
+      <div class="slider-ticks"><span>Day 1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>Day 7</span></div>
     </div>
-    <button class="play-btn" id="playBtn">▶ REPLAY WEEK</button>
+    <button class="play-btn" id="playBtn">▶ PLAY SCENARIO</button>
   </div>
 
   <div class="impact-strip" id="impactStrip"></div>
@@ -232,21 +248,21 @@
     </div>
   </div>
   <p style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--muted); margin:-20px 0 32px;">
-    Left: real map tiles, live coordinates. Right: observed discharge trend (solid) + 3-day projection (dashed) — a simple linear trend projection, not a trained ML model. See roadmap below for the ML upgrade path.
+    Left: OpenStreetMap tiles with approximate town coordinates. Right: simulated river-level readings (solid) and a 3-day linear extrapolation (dashed). The dashed line is a trend extrapolation, not a hydrological forecast and not a trained model.
   </p>
 
-  <div class="section-label">Risk assessment — 5 locations, Tana River flood plain</div>
+  <div class="section-label">Risk assessment — 5 locations, Tana River flood plain (simulated readings, illustrative thresholds)</div>
   <div class="grid" id="locationGrid"></div>
 
-  <div class="section-label">Decision dashboard — prioritized, multi-agency alert feed</div>
+  <div class="section-label">Decision dashboard — prioritized recommendations (simulated; nothing is sent)</div>
   <div id="alertFeed"></div>
 
-  <div class="section-label">Response organization directory — who's actually in the loop</div>
+  <div class="section-label">Response organizations — illustrative routing targets (none contacted)</div>
   <div class="grid" id="orgDirectory"></div>
 
   <div class="assistant">
     <div class="section-label assistant-label">Trace — explainable decision layer</div>
-    <p class="assistant-note">Ask about current conditions in plain language. Unlike a black-box score, every answer below is accompanied by its reasoning trace — the actual data, threshold check, confidence, and agency routing behind it. This is a rule-based query layer over the real risk data above, not a live LLM call — it proves the explainability pattern; a production version would call an LLM over this same schema and still show its trace.</p>
+    <p class="assistant-note">Ask about current conditions in plain language. Unlike a black-box score, every answer below is accompanied by its reasoning trace — the data reading, threshold check, a heuristic confidence value, and the agency routing behind it. This is a rule-based query layer over the simulated scenario data above, not an LLM call. It demonstrates the explainability pattern; a later version could add an LLM over the same schema and would still show its trace.</p>
     <div class="chips" id="chips"></div>
     <div class="ask-row">
       <input type="text" id="askInput" placeholder="e.g. What's the worst situation right now?">
@@ -259,19 +275,22 @@
   <div class="roadmap">
     <div class="roadmap-grid">
       <div class="rm-card built">
-        <div class="rm-title">✓ BUILT &amp; WORKING</div>
-        <div class="rm-item">Kernel + module interface (real, tested)</div>
-        <div class="rm-item">Flood module with live GloFAS data</div>
-        <div class="rm-item">Multi-agency action routing model</div>
-        <div class="rm-item">Rule-based assistant over live data</div>
+        <div class="rm-title">BUILT</div>
+        <div class="rm-item">Kernel + module interface (Python, with automated tests)</div>
+        <div class="rm-item">Flood module with GloFAS integration (Python prototype; not connected to this web page)</div>
+        <div class="rm-item">Rule-based action routing to responsible agencies</div>
+        <div class="rm-item">Rule-based assistant over simulated data (this page)</div>
       </div>
       <div class="rm-card next">
         <div class="rm-title">→ PHASE 2</div>
+        <div class="rm-item">Conversations with responders and residents to validate thresholds and alert formats (outreach sent 27 Oct 2026, no reply yet)</div>
+        <div class="rm-item">Connect this demo to live GloFAS data and test against documented past floods</div>
         <div class="rm-item">Wildfire module built out from stub</div>
-        <div class="rm-item">Pilot data-sharing pilot, one named agency</div>
+        <div class="rm-item">Pilot with one county agency (not yet agreed)</div>
       </div>
       <div class="rm-card next">
         <div class="rm-title">→ PHASE 3</div>
+        <div class="rm-item">SMS/USSD and radio alert formats (design stage)</div>
         <div class="rm-item">Live two-way API integration with pilot agency</div>
         <div class="rm-item">ML-trained prediction model, replacing trend projection</div>
       </div>
@@ -284,19 +303,19 @@
   </div>
 
   <div class="arch">
-    <div class="section-label arch-label">Why this is an operating system, not a flood app</div>
+    <div class="section-label arch-label">Design: a hazard-agnostic core with swappable hazard modules</div>
     <div class="arch-flow">
       <div class="arch-box"><b>Watershed Kernel</b>Shared data model + coordination engine. Hazard-agnostic.</div>
       <div class="arrow-b">→</div>
       <div class="arch-box"><b>Module Interface</b>Every hazard implements the same contract.</div>
       <div class="arrow-b">→</div>
-      <div class="arch-box"><b>Action Routing</b>Ranked across hazards, addressed to named stakeholder orgs.</div>
+      <div class="arch-box"><b>Action Routing</b>Ranked across hazards, addressed to the responsible organization (illustrative).</div>
     </div>
-    <p>This dashboard simulates the real Python prototype's logic: threshold-based risk scoring on river discharge trends, ranked by the hazard-agnostic Watershed Kernel, routed to specific responder organizations, and made explainable through Trace. The actual codebase includes a working flood module, a real GloFAS live-data integration, a stub wildfire module proving a second hazard plugs into the kernel with zero changes, and 19 passing automated tests.</p>
+    <p>This page simulates the Python prototype's logic on a scripted scenario: threshold-based risk scoring on river-level trends, ranking by the hazard-agnostic Watershed Kernel, routing to responder organizations, and explanation through Trace. Today there is one working flood module and one minimal wildfire stub that plugs into the kernel with no kernel changes. The Python codebase also contains a GloFAS data integration and 19 automated tests, which are not part of this web page.</p>
   </div>
 </main>
 
-<footer>Built for the Oxford Saïd climate resilience challenge · Tana River County, Kenya · Illustrative thresholds — not official flood-warning levels</footer>
+<footer>Prototype for the MIT Solve Global Climate Challenge · Tana River County, Kenya · Simulated scenario · Illustrative thresholds, not official flood-warning levels · Map © OpenStreetMap contributors</footer>
 
 <script>
 const DANGER = { garsen:5.5, hola:4.5, wenje:6.0, bura:4.0, ngao:5.0 };
@@ -311,7 +330,7 @@ const LOCATIONS = [
 // carried this concept from the start; this is it made visible. Shelter
 // status is illustrative; road status is LIVE — it flips to CLOSED
 // automatically when its linked location hits CRITICAL, the same event
-// that triggers the CLOSE_ROAD action in the alert feed. Not a
+// that triggers the CLOSE_ROAD action in the alert feed (simulated). Not a
 // full digital twin (no terrain/hydrology simulation) — a scoped, honest
 // first layer toward one.
 const ASSETS = [
@@ -330,7 +349,7 @@ const RAIN_UPSTREAM = {
   wenje:[25,40,65,100,85,55,35], bura:[25,40,65,100,85,55,35],
   ngao:[20,35,60,95,80,50,30],
 };
-const DATES = ["2026-07-24","2026-07-25","2026-07-26","2026-07-27","2026-07-28","2026-07-29","2026-07-30"];
+const DATES = ["scenario day 1","scenario day 2","scenario day 3","scenario day 4","scenario day 5","scenario day 6","scenario day 7"];
 const RISK_META = {
   none:{label:"NONE", color:"#3E8F5C"}, watch:{label:"WATCH", color:"#2E7D8C"},
   warning:{label:"WARNING", color:"#C98A1E"}, severe:{label:"SEVERE", color:"#C4571F"},
@@ -342,13 +361,13 @@ const MARGIN = 0.8;
 // Action type -> responsible organization (this is the "shared operational
 // picture across organizations" made concrete)
 // Directory of stakeholder organizations — the "who" behind the routing
-// above. Static metadata (role, coverage, contact) is illustrative for the
-// prototype; the ACTIVE count is computed live from current alerts.
+// above. All metadata (role, coverage, contact) is illustrative; no organization
+// has been contacted. The assigned count is computed from the simulated alerts.
 const ORG_DIRECTORY = {
   "County Disaster Mgmt Unit": { role: "County-level coordination & standby command", coverage: "Tana River County", contact: "Sub-County HQ, Garsen" },
   "Kenya Red Cross Society": { role: "Shelter operations & rescue deployment", coverage: "Tana River / Coast Region", contact: "Regional office, Hola" },
   "Kenya National Highways Authority": { role: "Road & crossing closures, infrastructure status", coverage: "Tana River road network", contact: "Regional engineer, Hola" },
-  "StormShield Ops": { role: "Automated monitoring & escalation", coverage: "All monitored locations", contact: "System — always on" },
+  "StormShield Ops": { role: "Automated monitoring & escalation", coverage: "All monitored locations", contact: "n/a (system role, planned)" },
 };
 
 const ORG_ROUTE = {
@@ -409,10 +428,10 @@ function renderImpactStrip(assessments){
   });
   const strip = document.getElementById('impactStrip');
   strip.innerHTML = `
-    <div class="impact-stat"><div class="iv">${peopleCovered.toLocaleString()}</div><div class="il">PEOPLE COVERED BY ACTIVE EARLY-ACTION ALERTS</div></div>
-    <div class="impact-stat"><div class="iv">${actionsCount}</div><div class="il">COORDINATED ACTIONS DISPATCHED, THIS DATE</div></div>
-    <div class="impact-stat"><div class="iv">${orgs.size}</div><div class="il">AGENCIES ACTIVE, THIS DATE</div></div>
-    <div class="impact-cite"><b>Why this matters:</b> anticipatory action of this kind has returned up to $7 in avoided losses per $1 spent in comparable Kenya contexts (OCHA, 2025) — early, coordinated action is not just faster, it's measurably cheaper than reactive response.</div>
+    <div class="impact-stat"><div class="iv">${peopleCovered.toLocaleString()}</div><div class="il">PEOPLE IN LOCATIONS WITH ACTIVE ALERTS (ILLUSTRATIVE POPULATIONS)</div></div>
+    <div class="impact-stat"><div class="iv">${actionsCount}</div><div class="il">ACTIONS RECOMMENDED THIS DAY (SIMULATED)</div></div>
+    <div class="impact-stat"><div class="iv">${orgs.size}</div><div class="il">AGENCIES THAT WOULD ACT THIS DAY</div></div>
+    <div class="impact-cite"><b>Why this matters:</b> a May 2025 FAO, WFP and OCHA report found anticipatory action returned up to $7 in avoided losses per $1 invested across ten countries, including Kenya. This demo does not measure outcomes.</div>
   `;
 }
 
@@ -426,7 +445,7 @@ function initMap(){
   LOCATIONS.forEach(loc => {
     const icon = L.divIcon({className:'', html:`<div style="width:18px;height:18px;border-radius:50%;background:#3E8F5C;border:2.5px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.4)"></div>`, iconSize:[18,18], iconAnchor:[9,9]});
     const m = L.marker([loc.lat, loc.lon], {icon}).addTo(map);
-    m.bindPopup(`<b>${loc.name}</b><br>Pop. ${loc.pop.toLocaleString()}`);
+    m.bindPopup(`<b>${loc.name}</b><br>Pop. ${loc.pop.toLocaleString()} (illustrative)`);
     markers[loc.id] = m;
   });
   ASSETS.forEach(asset => {
@@ -445,11 +464,11 @@ function updateAssets(assessments){
   ASSETS.forEach(asset => {
     const m = assetMarkers[asset.id];
     if (asset.type === "shelter") {
-      m.bindPopup(`<b>${asset.name}</b><br>Type: Shelter (capacity ${asset.capacity})<br><span style="color:#2E7D8C;font-weight:600">AVAILABLE</span>`);
+      m.bindPopup(`<b>${asset.name}</b><br>Type: Shelter (illustrative asset, capacity ${asset.capacity})<br><span style="color:#2E7D8C;font-weight:600">AVAILABLE (simulated)</span>`);
     } else {
       const linked = assessments.find(a => a.locId === asset.linkedLocation);
       const closed = linked && linked.risk === "critical";
-      m.bindPopup(`<b>${asset.name}</b><br>Type: Road crossing<br><span style="color:${closed?'#A13A2E':'#3E8F5C'};font-weight:600">${closed?'CLOSED — flood risk':'OPEN'}</span>`);
+      m.bindPopup(`<b>${asset.name}</b><br>Type: Road crossing<br><span style="color:${closed?'#A13A2E':'#3E8F5C'};font-weight:600">${closed?'CLOSED — flood risk (simulated)':'OPEN (simulated)'}</span>`);
     }
   });
 }
@@ -459,7 +478,7 @@ function updateMap(assessments){
     const m = markers[a.locId];
     const size = a.risk === "critical" ? 24 : a.risk === "severe" ? 21 : 18;
     m.setIcon(L.divIcon({className:'', html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${meta.color};border:2.5px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.4)"></div>`, iconSize:[size,size], iconAnchor:[size/2,size/2]}));
-    m.setPopupContent(`<b>${a.loc.name}</b><br>Pop. ${a.loc.pop.toLocaleString()}<br><span style="color:${meta.color};font-weight:600">${meta.label}</span><br>${a.explanation}`);
+    m.setPopupContent(`<b>${a.loc.name}</b><br>Pop. ${a.loc.pop.toLocaleString()} (illustrative)<br><span style="color:${meta.color};font-weight:600">${meta.label}</span><br>${a.explanation}`);
   });
   updateAssets(assessments);
 }
@@ -505,9 +524,9 @@ function drawSparkline(canvas, observed, dayIdx, danger){
 function buildTrace(a, acts, dayIdx){
   const confidence = (dayIdx + 1) >= 3 ? 0.75 : 0.55; // mirrors flood_module.py: needs >=3 readings
   return [
-    {label:"DATA", val:`${a.level.toFixed(1)}m discharge reading`},
+    {label:"DATA", val:`${a.level.toFixed(1)}m simulated river-level reading`},
     {label:"THRESHOLD CHECK", val:`vs ${a.danger.toFixed(1)}m danger, ${a.trend>=0?'+':''}${a.trend.toFixed(1)}m trend`},
-    {label:"CONFIDENCE", val:`${confidence.toFixed(2)} — based on ${dayIdx+1} days of observed history`},
+    {label:"CONFIDENCE", val:`${confidence.toFixed(2)} — heuristic from days of history, not a calibrated probability`},
     {label:"RECOMMENDATION", val:RISK_META[a.risk].label},
     {label:"ROUTING", val: acts.length ? [...new Set(acts.map(x=>x.org))].join(", ") : "No agency action needed"},
   ];
@@ -527,12 +546,12 @@ function answerQuestion(q, assessments, dayIdx){
   if (/worst|highest risk|critical|priority/.test(ql)) {
     const top = byPriority[0];
     const acts = actionsFor(top);
-    if (WEIGHT[top.risk] === 0) return { text: `No significant risk anywhere right now — ${top.loc.name} is the highest-scoring location and it's still NONE.`, trace: buildTrace(top, acts, dayIdx) };
+    if (WEIGHT[top.risk] === 0) return { text: `No significant risk anywhere on ${DATES[dayIdx]} — ${top.loc.name} is the highest-scoring location and it's still NONE.`, trace: buildTrace(top, acts, dayIdx) };
     return { text: `Worst situation: ${top.loc.name} — ${RISK_META[top.risk].label}. ${top.explanation} Recommended: ${acts.map(x=>`${x.t} (${x.org})`).join("; ")}.`, trace: buildTrace(top, acts, dayIdx) };
   }
   if (/safe|calm|fine|ok\b/.test(ql)) {
     const calm = assessments.filter(a => a.risk === "none").map(a => a.loc.name);
-    return { text: calm.length ? `Currently calm: ${calm.join(", ")}.` : `No locations are fully clear right now — every location shows at least a WATCH-level signal.`, trace: null };
+    return { text: calm.length ? `Calm on ${DATES[dayIdx]}: ${calm.join(", ")}.` : `No locations are fully clear on ${DATES[dayIdx]} — every location shows at least a WATCH-level signal.`, trace: null };
   }
   if (/shelter/.test(ql)) {
     const need = assessments.filter(a => actionsFor(a).some(x => x.org.includes("Red Cross") && x.t.includes("shelter")));
@@ -541,28 +560,29 @@ function answerQuestion(q, assessments, dayIdx){
   if (/agenc|organi[sz]ation|who|respond/.test(ql)) {
     const orgs = new Set();
     assessments.forEach(a => actionsFor(a).forEach(x => orgs.add(x.org)));
-    return { text: orgs.size ? `Organizations currently in the loop: ${[...orgs].join(", ")}.` : `No agencies need to act right now.`, trace: null };
+    return { text: orgs.size ? `Organizations that would be assigned actions: ${[...orgs].join(", ")}.` : `No agencies would need to act on ${DATES[dayIdx]}.`, trace: null };
   }
   const counts = {};
   assessments.forEach(a => counts[a.risk] = (counts[a.risk]||0)+1);
   const summary = Object.entries(counts).map(([k,v]) => `${v} ${RISK_META[k].label}`).join(", ");
-  return { text: `Status for ${DATES[dayIdx]}: ${summary} across 5 monitored locations. Try asking about a specific location, or "what's the worst situation?"`, trace: null };
+  return { text: `Simulated status for ${DATES[dayIdx]}: ${summary} across 5 monitored locations. Try asking about a specific location, or "what's the worst situation?"`, trace: null };
 }
 
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function addChatEntry(q, res){
   const log = document.getElementById('chatLog');
   const div = document.createElement('div');
   const traceHtml = res.trace ? `<div class="trace">${res.trace.map((t,i) =>
     `<div class="trace-step"><div class="ts-label">${t.label}</div><div class="ts-val">${t.val}</div></div>${i<res.trace.length-1?'<div class="trace-arrow">→</div>':''}`
   ).join('')}</div>` : '';
-  div.innerHTML = `<div class="chat-q">${q}</div><div class="chat-a">${res.text}${traceHtml}</div>`;
+  div.innerHTML = `<div class="chat-q">${esc(q)}</div><div class="chat-a">${res.text}${traceHtml}</div>`;
   log.prepend(div);
 }
 
 // ---------- Render ----------
 let currentAssessments = [];
 function render(dayIdx){
-  document.getElementById('dateReadout').textContent = DATES[dayIdx];
+  document.getElementById('dateReadout').textContent = 'Day ' + (dayIdx+1);
   const assessments = LOCATIONS.map(loc => ({...assess(loc.id, dayIdx), loc}));
   currentAssessments = assessments;
 
@@ -576,7 +596,7 @@ function render(dayIdx){
     const row = document.createElement('div');
     row.className = 'forecast-row';
     const a = assessments.find(x => x.locId === loc.id);
-    row.innerHTML = `<div class="fr-name">${loc.name}</div><canvas class="fr-spark"></canvas><div class="fr-val">${a.level.toFixed(1)}m → proj.</div>`;
+    row.innerHTML = `<div class="fr-name">${loc.name}</div><canvas class="fr-spark"></canvas><div class="fr-val">${a.level.toFixed(1)}m → trend</div>`;
     fl.appendChild(row);
     const canvas = row.querySelector('canvas');
     requestAnimationFrame(() => drawSparkline(canvas, READINGS[loc.id], dayIdx, DANGER[loc.id]));
@@ -592,7 +612,7 @@ function render(dayIdx){
     card.className = 'card';
     card.innerHTML = `
       <div class="card-top">
-        <div><div class="loc-name">${a.loc.name}</div><div class="loc-pop">POP. ${a.loc.pop.toLocaleString()}</div></div>
+        <div><div class="loc-name">${a.loc.name}</div><div class="loc-pop">POP. ${a.loc.pop.toLocaleString()} · ILLUSTRATIVE</div></div>
         <div class="badge" style="background:${meta.color}">${meta.label}</div>
       </div>
       <div class="gauge-row">
@@ -611,7 +631,7 @@ function render(dayIdx){
   const feed = document.getElementById('alertFeed');
   feed.innerHTML = "";
   if (withPriority.length === 0) {
-    feed.innerHTML = `<div class="empty-state">No active alerts for ${DATES[dayIdx]}.</div>`;
+    feed.innerHTML = `<div class="empty-state">No active alerts for ${DATES[dayIdx]} (simulated).</div>`;
   } else {
     withPriority.forEach((a, i) => {
       const meta = RISK_META[a.risk];
@@ -652,9 +672,9 @@ function render(dayIdx){
     card.innerHTML = `
       <div class="org-top">
         <div class="org-name">${org}</div>
-        <div class="org-status ${isActive ? 'active' : 'idle'}">${isActive ? activity.length + ' ACTIVE' : 'STANDBY'}</div>
+        <div class="org-status ${isActive ? 'active' : 'idle'}">${isActive ? activity.length + ' ASSIGNED (SIM.)' : 'NO ASSIGNMENT'}</div>
       </div>
-      <div class="org-meta"><b>Role:</b> ${info.role}<br><b>Coverage:</b> ${info.coverage}<br><b>Contact:</b> ${info.contact}</div>
+      <div class="org-meta"><b>Role:</b> ${info.role}<br><b>Coverage:</b> ${info.coverage}<br><b>Contact (placeholder):</b> ${info.contact}</div>
       <div class="org-locs">${locsLine}</div>`;
     dirGrid.appendChild(card);
   });
@@ -664,12 +684,12 @@ const slider = document.getElementById('daySlider');
 slider.addEventListener('input', () => render(parseInt(slider.value)));
 let playing = false, playTimer = null;
 document.getElementById('playBtn').addEventListener('click', function(){
-  if (playing) { clearInterval(playTimer); playing = false; this.textContent = "▶ REPLAY WEEK"; return; }
+  if (playing) { clearInterval(playTimer); playing = false; this.textContent = "▶ PLAY SCENARIO"; return; }
   playing = true; this.textContent = "❚❚ PAUSE";
   let d = 0; slider.value = 0; render(0);
   playTimer = setInterval(() => {
     d++;
-    if (d > 6) { clearInterval(playTimer); playing = false; document.getElementById('playBtn').textContent = "▶ REPLAY WEEK"; return; }
+    if (d > 6) { clearInterval(playTimer); playing = false; document.getElementById('playBtn').textContent = "▶ PLAY SCENARIO"; return; }
     slider.value = d; render(d);
   }, 1100);
 });
