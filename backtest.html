@@ -133,8 +133,8 @@
 
     <h2>Method and limitations</h2>
     <div class="panel method">
-      <p><b>Data.</b> Daily river discharge (m³/s) from the Open-Meteo Flood API, which is based on GloFAS, for the grid cell it selects nearest to each location. The response states which cell was used; it is shown in the summary table. If a cell is not on the main river channel its flows will look too small, and the table flags very low values. This is modelled history, not gauge data. Whether the model represents upstream dam operations on the Tana has not been checked.</p>
-      <p><b>Thresholds.</b> For each location, the highest value in each year from 1990 to 2023 is taken. The 2-, 5- and 10-year levels are the 50th, 80th and 90th percentiles of those annual maxima. With about 34 values, the 10-year level in particular is uncertain. Levels: <b>watch</b> at 60% of the 2-year level, <b>warning</b> at the 2-year level, <b>severe</b> at the 5-year level, <b>critical</b> at the 10-year level. All cut-offs are editable at the top of the page script.</p>
+      <p><b>Data.</b> Daily river discharge (m³/s) from the Open-Meteo Flood API, which is based on GloFAS, for the grid cell it selects nearest to each location. The response states which cell was used; it is shown in the summary table. The API snaps a point to the nearest model cell, which is often off the river (in a first test every town snapped to a cell with almost no flow). So the page tests the 25 model cells within about 11 km of each town and uses the one with the highest average flow in 2022–23, which should be the main channel. The chosen cell is shown in the table and should be checked on a map. A cell with almost no flow is marked as not usable and no thresholds are applied to it. This is modelled history, not gauge data. Whether the model represents upstream dam operations on the Tana has not been checked.</p>
+      <p><b>Thresholds.</b> For each location, the highest value in each year from 1990 to 2023 is taken. The 2-, 5- and 10-year levels are the 50th, 80th and 90th percentiles of those annual maxima. With only a few decades of values (the count is in the table), the 10-year level in particular is uncertain. Levels: <b>watch</b> at 60% of the 2-year level, <b>warning</b> at the 2-year level, <b>severe</b> at the 5-year level, <b>critical</b> at the 10-year level. All cut-offs are editable at the top of the page script.</p>
       <p><b>What this cannot show.</b> It cannot show that the system would have saved anyone, because the thresholds are built from the same data they are tested on and no ground truth on flood extent or timing is used. It covers one season, so it says little about false alarms; the table gives a rough base rate by counting how often severe levels occurred in the same calendar window in earlier years. Documented impacts such as camps and cholera cases lag the water and are reported for the county, so a lead time against them is only a loose indication.</p>
       <p><b>Next checks.</b> Compare against gauge records from the Water Resources Authority if they can be obtained, test on more seasons, and discuss thresholds and alert timing with responders and residents. None of that has been done yet.</p>
     </div>
@@ -149,7 +149,9 @@ const WINDOW_START = "2024-03-25", WINDOW_END = "2024-06-30";
 const BASELINE_START = "1990-01-01", BASELINE_END = "2023-12-31";
 const CELL_SELECTION = "nearest";
 const WATCH_FRAC = 0.6;      // watch = 60% of the 2-year level (illustrative)
-const LOW_FLOW_FLAG = 20;    // m3/s: flag if the 2-year level is below this
+const LOW_FLOW_FLAG = 20;    // m3/s: below this 2-year level a cell is treated as off the river and not used
+const PROBE_STEP = 0.05, PROBE_RADIUS = 2;   // test 5x5 model cells (about 11 km each way) around each town
+const PROBE_START = "2022-01-01", PROBE_END = "2023-12-31";
 const API = "https://flood-api.open-meteo.com/v1/flood";
 
 const LOCATIONS = [
@@ -187,6 +189,7 @@ const LEVELS = {
   warning: {label:"WARNING",  color:"#C98A1E", w:2},
   severe:  {label:"SEVERE",   color:"#C4571F", w:3},
   critical:{label:"CRITICAL", color:"#A13A2E", w:4},
+  unusable:{label:"NO USABLE DATA", color:"#8A9A97", w:-1},
 };
 const ACTIONS = {
   critical:[["Evacuate low-lying areas.","County Disaster Mgmt Unit"],["Deploy rescue and response teams.","Kenya Red Cross Society"],["Close low-lying river crossings and access roads.","Kenya National Highways Authority"]],
@@ -194,6 +197,7 @@ const ACTIONS = {
   warning: [["Send precautionary alert.","County Disaster Mgmt Unit"],["Notify county disaster management unit for standby.","County Disaster Mgmt Unit"]],
   watch:   [["Increase monitoring frequency.","StormShield Ops"]],
   none:    [],
+  unusable:[],
 };
 
 function quantile(sorted, q){
@@ -206,6 +210,7 @@ function thresholdsFromAnnualMax(annualMax){
   return {n: arr.length, rp2: quantile(arr,0.5), rp5: quantile(arr,0.8), rp10: quantile(arr,0.9)};
 }
 function riskFor(q, th){
+  if (!th || !(th.rp2 >= LOW_FLOW_FLAG)) return "unusable";
   if (!Number.isFinite(q)) return "none";
   if (q >= th.rp10) return "critical";
   if (q >= th.rp5) return "severe";
@@ -241,16 +246,23 @@ function buildDataset(resp){
     }
   });
   for (const y in annualMax) annualMax[y] = Math.round(annualMax[y]*10)/10;
-  return {cell:{lat:resp.latitude, lon:resp.longitude}, annualMax, seasonal, window:win};
+  const ds = {cell:{lat:resp.latitude, lon:resp.longitude}, annualMax, seasonal, window:win};
+  return ds;
+}
+function meanOf(resp){
+  const v = (resp.daily.river_discharge || []).filter(Number.isFinite);
+  return v.length ? v.reduce((a,b) => a+b, 0) / v.length : NaN;
 }
 function indexDataset(ds){
   ds.th = thresholdsFromAnnualMax(ds.annualMax);
+  ds.usable = ds.th.n >= 10 && ds.th.rp2 >= LOW_FLOW_FLAG;
   ds.idx = new Map(ds.window.dates.map((d,i) => [d,i]));
   return ds;
 }
 function valueOn(ds, date){ const i = ds.idx.get(date); return i === undefined ? NaN : ds.window.values[i]; }
 function riskOn(ds, date){ return riskFor(valueOn(ds, date), ds.th); }
 function firstReach(ds, level){
+  if (!ds.usable) return null;
   const w = LEVELS[level].w;
   for (let i = 0; i < ds.window.dates.length; i++){
     if (LEVELS[riskFor(ds.window.values[i], ds.th)].w >= w) return ds.window.dates[i];
@@ -277,12 +289,34 @@ const $ = id => document.getElementById(id);
 function setStatus(msg, isErr){ const s = $("status"); s.textContent = msg; s.className = "status" + (isErr ? " err" : ""); s.hidden = false; }
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-async function fetchLive(loc){
-  const url = `${API}?latitude=${loc.lat}&longitude=${loc.lon}&daily=river_discharge&start_date=${BASELINE_START}&end_date=${WINDOW_END}&cell_selection=${CELL_SELECTION}`;
+async function getJSON(lat, lon, start, end, label){
+  const url = `${API}?latitude=${lat}&longitude=${lon}&daily=river_discharge&start_date=${start}&end_date=${end}&cell_selection=${CELL_SELECTION}`;
   const r = await fetch(url);
   const body = await r.text();
-  if (!r.ok) throw new Error(`${loc.name}: HTTP ${r.status} ${body.slice(0,160)}`);
-  return buildDataset(JSON.parse(body));
+  if (!r.ok) throw new Error(`${label}: HTTP ${r.status} ${body.slice(0,160)}`);
+  return JSON.parse(body);
+}
+// The API snaps a point to the nearest model cell, which is often off the river. Test the surrounding
+// cells over a normal period and keep the one with the highest average flow (the main channel).
+async function fetchLive(loc, onProgress){
+  const cands = [];
+  for (let dy = -PROBE_RADIUS; dy <= PROBE_RADIUS; dy++)
+    for (let dx = -PROBE_RADIUS; dx <= PROBE_RADIUS; dx++)
+      cands.push({lat:+(loc.lat + dy*PROBE_STEP).toFixed(4), lon:+(loc.lon + dx*PROBE_STEP).toFixed(4)});
+  const results = [];
+  for (let i = 0; i < cands.length; i += 5){
+    onProgress && onProgress(Math.min(i+5, cands.length), cands.length);
+    const batch = await Promise.all(cands.slice(i, i+5).map(c =>
+      getJSON(c.lat, c.lon, PROBE_START, PROBE_END, loc.name + " probe").then(resp => ({resp, mean:meanOf(resp)})).catch(() => null)));
+    batch.forEach(b => { if (b && Number.isFinite(b.mean)) results.push(b); });
+  }
+  if (!results.length) throw new Error(`${loc.name}: no candidate cell returned data`);
+  results.sort((a,b) => b.mean - a.mean);
+  const best = results[0];
+  const full = await getJSON(best.resp.latitude, best.resp.longitude, BASELINE_START, WINDOW_END, loc.name);
+  const ds = buildDataset(full);
+  ds.probe = {candidates:results.length, meanFlow:Math.round(best.mean*10)/10, requested:{lat:loc.lat, lon:loc.lon}};
+  return ds;
 }
 async function loadAll(){
   // 1) a saved copy next to this page, if present (more reliable for reviewers)
@@ -297,12 +331,14 @@ async function loadAll(){
   const data = {}, errors = [];
   for (let i = 0; i < LOCATIONS.length; i++){
     const loc = LOCATIONS[i];
-    setStatus(`Fetching ${loc.name} from the Open-Meteo Flood API (${i+1} of ${LOCATIONS.length})…`);
-    try { data[loc.id] = await fetchLive(loc); } catch(e) { errors.push(String(e.message || e)); }
+    setStatus(`Finding the river channel near ${loc.name} and fetching its data (${i+1} of ${LOCATIONS.length}). The first load takes a minute or two…`);
+    try { data[loc.id] = await fetchLive(loc, (a,b) => setStatus(`Finding the river channel near ${loc.name}: testing cells ${a} of ${b} (location ${i+1} of ${LOCATIONS.length}). The first load takes a minute or two…`)); }
+    catch(e) { errors.push(String(e.message || e)); }
   }
   if (errors.length) throw new Error("Could not load data for every location.\n" + errors.join("\n"));
   const meta = {source:"River discharge from the Open-Meteo Flood API (GloFAS-based, modelled)", retrieved:new Date().toISOString(),
-                baseline:[BASELINE_START, BASELINE_END], window:[WINDOW_START, WINDOW_END], cellSelection:CELL_SELECTION};
+                baseline:[BASELINE_START, BASELINE_END], window:[WINDOW_START, WINDOW_END], cellSelection:CELL_SELECTION,
+                probe:{step:PROBE_STEP, radius:PROBE_RADIUS, period:[PROBE_START, PROBE_END]}};
   return {meta, data, from:"live API"};
 }
 
@@ -359,16 +395,16 @@ function renderDay(){
     <div class="card">
       <div class="card-top"><div class="loc-name">${esc(loc.name)}</div><div class="badge" style="background:${LEVELS[r].color}">${LEVELS[r].label}</div></div>
       <div class="q">${fmt(q)} m³/s</div>
-      <div class="sub">${Number.isFinite(q) ? Math.round(q/ds.th.rp2*100) + "% of the estimated 2-year level" : "no data for this date"}<br>5-year ${fmt(ds.th.rp5)} · 10-year ${fmt(ds.th.rp10)} m³/s</div>
+      <div class="sub">${!ds.usable ? "This cell has almost no flow, so it is not on the river channel. No thresholds are applied." : (Number.isFinite(q) ? Math.round(q/ds.th.rp2*100) + "% of the estimated 2-year level" : "no data for this date") + `<br>5-year ${fmt(ds.th.rp5)} · 10-year ${fmt(ds.th.rp10)} m³/s`}</div>
     </div>`).join("");
   // actions (simulated), highest risk first
-  const active = rows.filter(x => x.r !== "none").sort((a,b) => LEVELS[b.r].w - LEVELS[a.r].w);
+  const active = rows.filter(x => LEVELS[x.r].w > 0).sort((a,b) => LEVELS[b.r].w - LEVELS[a.r].w);
   $("dayActions").innerHTML = active.length
     ? active.map(({loc, r}) => ACTIONS[r].map(([t, org]) =>
         `<li><b>${esc(loc.name)}</b> <span class="mono" style="color:${LEVELS[r].color}">${LEVELS[r].label}</span> — ${esc(t)} <span class="org-tag">${esc(org)}</span></li>`).join("")).join("")
     : `<li>No location is at WATCH or above on this date.</li>`;
   // charts
-  $("charts").innerHTML = LOCATIONS.map(loc => `<div class="panel chart-wrap"><h3>${esc(loc.name)}</h3>${chartSVG(loc, STATE.cur)}</div>`).join("");
+  $("charts").innerHTML = LOCATIONS.map(loc => `<div class="panel chart-wrap"><h3>${esc(loc.name)}</h3>${STATE.data[loc.id].usable ? chartSVG(loc, STATE.cur) : `<p class="flag">Not shown: the model cell for this location has almost no flow and is not on the river channel.</p>`}</div>`).join("");
   // events (passed / future)
   document.querySelectorAll(".event").forEach(el => {
     const d = el.getAttribute("data-date");
@@ -379,17 +415,18 @@ function renderDay(){
 
 function renderStatic(){
   // summary table
-  const head = `<tr><th>Location</th><th>Grid cell used</th><th>2 / 5 / 10-year levels (m³/s)</th><th>Window peak</th><th>First WARNING</th><th>First SEVERE</th><th>First CRITICAL</th><th>Years with SEVERE+ in the same window, ${BASELINE_START.slice(0,4)}–${BASELINE_END.slice(0,4)}</th></tr>`;
+  const head = `<tr><th>Location</th><th>Grid cell used</th><th>2 / 5 / 10-year levels (m³/s)</th><th>Window peak</th><th>First WARNING</th><th>First SEVERE</th><th>First CRITICAL</th><th>Earlier years with SEVERE+ in the same 25 Mar–30 Jun window</th></tr>`;
   const body = LOCATIONS.map(loc => {
     const ds = STATE.data[loc.id], th = ds.th, pk = peakOf(ds), ss = seasonalSummary(ds);
-    const low = th.rp2 < LOW_FLOW_FLAG ? `<br><span class="flag">Very low flows: this cell may not be on the main river channel. Treat with caution.</span>` : "";
-    const fr = lv => { const d = firstReach(ds, lv); return d ? shortDate(d) : "not reached"; };
+    const low = !ds.usable ? `<br><span class="flag">Not usable: almost no flow, so this cell is not on the river channel.</span>` : "";
+    const pr = ds.probe ? `<br>Chosen from ${ds.probe.candidates} nearby cells; mean flow ${fmt(ds.probe.meanFlow)} m³/s (2022–23)` : "";
+    const fr = lv => { if (!ds.usable) return "n/a"; const d = firstReach(ds, lv); return d ? shortDate(d) : "not reached"; };
     return `<tr><td><b>${esc(loc.name)}</b><br><span class="mono">${loc.lat}, ${loc.lon}</span></td>
-      <td class="mono">${Number.isFinite(ds.cell.lat) ? ds.cell.lat.toFixed(3) + ", " + ds.cell.lon.toFixed(3) : "n/a"}</td>
+      <td class="mono">${Number.isFinite(ds.cell.lat) ? ds.cell.lat.toFixed(3) + ", " + ds.cell.lon.toFixed(3) : "n/a"}${pr}</td>
       <td class="mono">${fmt(th.rp2)} / ${fmt(th.rp5)} / ${fmt(th.rp10)}<br>from ${th.n} annual maxima${low}</td>
       <td class="mono">${fmt(pk.value)} m³/s<br>${shortDate(pk.date)}</td>
       <td class="mono">${fr("warning")}</td><td class="mono">${fr("severe")}</td><td class="mono">${fr("critical")}</td>
-      <td class="mono">${ss.severe} of ${ss.years} years<br>(critical: ${ss.critical})</td></tr>`;
+      <td class="mono">${ds.usable ? ss.severe + " of " + ss.years + " years<br>(critical: " + ss.critical + ")" : "n/a"}</td></tr>`;
   }).join("");
   $("summary").innerHTML = head + body;
 
@@ -447,7 +484,8 @@ function togglePlay(){
     $("dlBtn").addEventListener("click", download);
     renderStatic(); renderDay();
     $("app").hidden = false;
-    setStatus(`Data loaded from the ${from}. Source: ${meta && meta.source ? meta.source : "Open-Meteo Flood API"}; retrieved ${meta && meta.retrieved ? meta.retrieved.slice(0,10) : "n/a"}.`);
+    const usable = LOCATIONS.filter(l => data[l.id].usable).length;
+    setStatus(`Data loaded from the ${from}. Source: ${meta && meta.source ? meta.source : "Open-Meteo Flood API"}; retrieved ${meta && meta.retrieved ? meta.retrieved.slice(0,10) : "n/a"}. ${usable} of ${LOCATIONS.length} locations have a usable river cell.`, usable === 0);
   } catch(e) {
     setStatus("Could not load the data.\n" + (e.message || e) + "\n\nThis page needs the Open-Meteo Flood API (flood-api.open-meteo.com) or a saved backtest-data.json next to it.", true);
   }
