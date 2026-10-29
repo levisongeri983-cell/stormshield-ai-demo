@@ -96,6 +96,20 @@
   .alert-msg{font-size:13px; line-height:1.5;}
   .action{font-size:12px; color:var(--muted); margin-top:7px; padding-left:0; display:flex; gap:8px; align-items:baseline;}
   .action .arrow{color:var(--teal-light);}
+  .fmt-note{font-size:12.5px; line-height:1.55; color:var(--muted); margin:-4px 0 12px; max-width:900px;}
+  .lang-row{display:flex; gap:8px; margin-bottom:14px;}
+  .lang-btn{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:6px 12px; border-radius:20px; border:1px solid var(--line); background:#fff; color:var(--deep); cursor:pointer;}
+  .lang-btn.on{background:var(--deep); color:#fff; border-color:var(--deep);}
+  .lang-btn:focus-visible{outline:2px solid var(--teal-light); outline-offset:2px;}
+  .fmt-card{background:#fff; border:1px solid var(--line); border-left:4px solid var(--line); border-radius:10px; padding:15px 17px; margin-bottom:11px;}
+  .fmt-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; margin-top:10px;}
+  .fmt-box{background:var(--sand); border-radius:8px; padding:10px 12px;}
+  .fmt-label{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.06em; color:var(--muted); margin-bottom:5px; display:flex; justify-content:space-between; gap:8px;}
+  .fmt-text{font-size:12.5px; line-height:1.5;}
+  .over{color:#A13A2E; font-weight:600;}
+  .stage-row{display:grid; grid-template-columns:110px 1fr; gap:6px 14px; background:#fff; border:1px solid var(--line); border-left:4px solid var(--line); border-radius:10px; padding:12px 16px; margin-bottom:10px; font-size:12.5px; line-height:1.5;}
+  .stage-row b{font-family:'Fraunces',serif; font-size:15px;}
+  @media (max-width:640px){ .stage-row{grid-template-columns:1fr;} }
   .org-tag{font-family:'IBM Plex Mono',monospace; font-size:9.5px; background:var(--sand); color:var(--teal); padding:2px 7px; border-radius:5px; white-space:nowrap;}
   .empty-state{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted); background:#fff; border:1px dashed var(--line); border-radius:10px; padding:20px; text-align:center;}
 
@@ -213,7 +227,7 @@
       <li>Water levels, upstream rainfall and the seven days are scripted illustrative values. They are not GloFAS data and not a real event.</li>
       <li>Danger thresholds are placeholders, not official flood-warning levels. Populations, shelters, contacts and organizations are illustrative. No agency has been contacted for this demo or uses it.</li>
       <li>Nothing is sent. "Recommended" and "routed" mean what the system would suggest, and to whom.</li>
-      <li>The Python prototype behind this page contains the GloFAS integration and automated tests. This page re-implements its scoring logic on scripted data. Informal conversations with a few residents informed the design; it has not been validated with responders or officials.</li>
+      <li>The Python prototype behind this page contains the GloFAS integration and automated tests. This page re-implements its scoring logic on scripted data. Informal conversations with a few residents and one humanitarian disaster-management officer informed the design; it has not been validated with responders or officials.</li>
       <li><a href="backtest.html">See the retrospective replay of the April–June 2024 Tana River floods, which uses GloFAS-based modelled discharge instead of scripted values →</a></li>
     </ul>
   </div>
@@ -257,6 +271,18 @@
   <div class="section-label">Decision dashboard — prioritized recommendations (simulated; nothing is sent)</div>
   <div id="alertFeed"></div>
 
+  <div class="section-label">Alert formats — drafts shaped by resident and responder input (simulated; not sent)</div>
+  <p class="fmt-note">Informal accounts from flood survivors said warnings reached them through the river itself, neighbours, relatives and radio that gave only broad statements, and that they moved when elders, community health promoters or Red Cross volunteers came to the door. These drafts are one attempt at a more specific message for each channel. The timing is a simple trend estimate in whole days, not an hour-by-hour forecast. Kiswahili text is a machine-written draft and must be reviewed by a native speaker and a local radio producer before any use. Nothing here has been tested with residents.</p>
+  <div class="lang-row" role="group" aria-label="Language of the draft alerts">
+    <button type="button" class="lang-btn on" id="langEn" aria-pressed="true">English</button>
+    <button type="button" class="lang-btn" id="langSw" aria-pressed="false">Kiswahili (draft)</button>
+  </div>
+  <div id="alertFormats"></div>
+
+  <div class="section-label">Relief staging window — lead time for trucking supplies (simulated)</div>
+  <p class="fmt-note">A disaster-management officer said relief teams ideally need at least three days to truck supplies such as family shelter kits, and that flash-flooded seasonal rivers cut roads and trap trucks. Rule used here: recommend staging when the estimated time to the danger level is three days or less. This simulation covers a main river only. It does not cover flash floods on small seasonal rivers, which the officer named as the biggest gap, and it has no road or crossing risk data yet.</p>
+  <div id="stagingPanel"></div>
+
   <div class="section-label">Response organizations — illustrative routing targets (none contacted)</div>
   <div class="grid" id="orgDirectory"></div>
 
@@ -280,17 +306,19 @@
         <div class="rm-item">Flood module with GloFAS integration (Python prototype; not connected to this web page)</div>
         <div class="rm-item">Rule-based action routing to responsible agencies</div>
         <div class="rm-item">Rule-based assistant over simulated data (this page)</div>
+        <div class="rm-item">Draft alert formats (SMS, radio, door-to-door) and a staging-window rule, on simulated data (this page)</div>
       </div>
       <div class="rm-card next">
         <div class="rm-title">→ PHASE 2</div>
-        <div class="rm-item">Conversations with responders and residents to validate thresholds and alert formats (outreach sent 27 Oct 2026, no reply yet)</div>
-        <div class="rm-item">Connect this demo to live GloFAS data and test against documented past floods</div>
+        <div class="rm-item">Conversations with responders and residents to validate thresholds and alert formats (outreach sent 27 Oct 2026; I have spoken by phone with one humanitarian disaster-management officer)</div>
+        <div class="rm-item">Connect this demo to live data and test against documented past floods; add river-gauge and Kenya Met Department forecast inputs, which response teams use operationally (needs data access)</div>
         <div class="rm-item">Wildfire module built out from stub</div>
         <div class="rm-item">Pilot with one county agency (not yet agreed)</div>
       </div>
       <div class="rm-card next">
         <div class="rm-title">→ PHASE 3</div>
-        <div class="rm-item">SMS/USSD and radio alert formats (design stage)</div>
+        <div class="rm-item">SMS/USSD and radio alert formats: drafts in this page, not yet tested with residents</div>
+        <div class="rm-item">Access planning: a simple 3-day staging rule is in this page. Road and crossing risk is not modelled; a disaster-management officer named Arer and Tulia on the Garissa–Madogo corridor as early to flood (needs road data; flash floods are not covered by GloFAS)</div>
         <div class="rm-item">Live two-way API integration with pilot agency</div>
         <div class="rm-item">ML-trained prediction model, replacing trend projection</div>
       </div>
@@ -378,6 +406,7 @@ const ORG_ROUTE = {
   alert: "County Disaster Mgmt Unit",
   notify: "County Disaster Mgmt Unit",
   monitor: "StormShield Ops",
+  stage: "Kenya Red Cross Society",
 };
 
 function assess(locId, dayIdx){
@@ -406,9 +435,11 @@ function actionsFor(a){
     acts.push({t:"Close low-lying river crossings and access roads.", org:ORG_ROUTE.road});
   } else if (a.risk === "severe") {
     acts.push({t:"Open designated shelters — level rising fast toward threshold.", org:ORG_ROUTE.shelter});
+    acts.push({t:"Stage relief supplies (shelter kits) now — access may be cut within days.", org:ORG_ROUTE.stage});
     acts.push({t:"Send urgent alert to residents in flood-plain zones.", org:ORG_ROUTE.alert});
   } else if (a.risk === "warning") {
     acts.push({t:"Send precautionary alert — approaching danger threshold.", org:ORG_ROUTE.alert});
+    acts.push({t:"Stage relief supplies (shelter kits) while roads are still open.", org:ORG_ROUTE.stage});
     acts.push({t:"Notify county disaster management unit for standby.", org:ORG_ROUTE.notify});
   } else if (a.risk === "watch") {
     acts.push({t:"Increase monitoring frequency given upstream rainfall trend.", org:ORG_ROUTE.monitor});
@@ -581,6 +612,93 @@ function addChatEntry(q, res){
 
 // ---------- Render ----------
 let currentAssessments = [];
+
+// ---- Alert formats and staging window (simulated) ---------------------------------
+const STAGING_LEAD_DAYS = 3;   // minimum lead time a disaster-management officer described for trucking supplies
+const SHELTER_BY_LOC = { garsen:"Garsen Primary School", hola:"Hola Stadium" };   // illustrative assets above
+let ALERT_LANG = "en";
+let lastPriority = [];
+
+// Whole days until the simulated level reaches the danger level, from the latest daily change.
+// 0 = already there, null = not rising. A rough trend estimate, not a forecast.
+function daysToDanger(a){
+  if (a.level >= a.danger) return 0;
+  if (a.trend <= 0.05) return null;
+  return Math.max(1, Math.ceil((a.danger - a.level) / a.trend));
+}
+const TXT = {
+  en: {
+    risk:{warning:"WARNING", severe:"SEVERE", critical:"CRITICAL"},
+    now:"has reached the danger level",
+    soon:d => `is expected to reach the danger level within about ${d} day${d>1?"s":""}`,
+    flat:"is not rising at the moment",
+    nowS:"at danger level", soonS:d => `danger level in ~${d}d`, flatS:"not rising now",
+    shelterIs:s => `${s} is the planned shelter`, shelterTbc:"the nearest shelter will be confirmed",
+    shelterS:s => s || "nearest shelter TBC",
+    sms:(r,n,t,s) => `FLOOD ${r} - ${n}: river ${t}. Move to higher ground now. Shelter: ${s}. [SIMULATED]`,
+    radio:(n,t,sh) => `Attention listeners in ${n}. The river near ${n} ${t}. Families in low-lying areas should prepare to move to higher ground; ${sh}. Village elders and community health promoters will visit households. This is an estimate and may change, so keep listening for updates. [Simulated example, not a real alert.]`,
+    door:(n,t,s) => `Visit households in the low-lying parts of ${n}. Tell them: the river ${t}; move children, elderly people and livestock to higher ground; go to ${s}; take water, documents and medicines. Note which households need help and report them to the county disaster unit or Red Cross volunteers. Record who has been reached.`,
+  },
+  sw: {
+    risk:{warning:"ONYO", severe:"ONYO KALI", critical:"HATARI"},
+    now:"tayari umefikia kiwango cha hatari",
+    soon:d => `unatarajiwa kufikia kiwango cha hatari ndani ya takriban siku ${d}`,
+    flat:"haupandi kwa sasa",
+    nowS:"umefikia hatari", soonS:d => `hatari baada ya ~siku ${d}`, flatS:"haupandi sasa",
+    shelterIs:s => `${s} ndiyo makazi yaliyopangwa`, shelterTbc:"makazi ya karibu yatathibitishwa",
+    shelterS:s => s || "makazi ya karibu yatathibitishwa",
+    sms:(r,n,t,s) => `TAHADHARI YA MAFURIKO (${r}) - ${n}: mto ${t}. Hamia sehemu za juu sasa. Makazi: ${s}. [MFANO]`,
+    radio:(n,t,sh) => `Wasikilizaji wa ${n}: mto karibu na ${n} ${t}. Familia za maeneo ya chini zijiandae kuhamia sehemu za juu; ${sh}. Wazee wa kijiji na wahudumu wa afya ya jamii watatembelea kaya. Hii ni makadirio na inaweza kubadilika, endeleeni kusikiliza. [Mfano wa majaribio, si tahadhari halisi.]`,
+    door:null,
+  },
+};
+function alertTexts(a, lang){
+  const T = TXT[lang], d = daysToDanger(a);
+  const long = d === 0 ? T.now : d === null ? T.flat : T.soon(d);
+  const short = d === 0 ? T.nowS : d === null ? T.flatS : T.soonS(d);
+  const shelter = SHELTER_BY_LOC[a.locId];
+  const shelterLine = shelter ? T.shelterIs(shelter) : T.shelterTbc;
+  const doorShelter = shelter || TXT.en.shelterS();
+  return {
+    sms: T.sms(T.risk[a.risk], a.loc.name, short, T.shelterS(shelter)),
+    radio: T.radio(a.loc.name, long, shelterLine),
+    door: TXT.en.door(a.loc.name, d === 0 ? TXT.en.now : d === null ? TXT.en.flat : TXT.en.soon(d), doorShelter),
+  };
+}
+function renderAlertFormats(priority){
+  const el = document.getElementById('alertFormats');
+  const list = priority.filter(a => WEIGHT[a.risk] >= WEIGHT.warning);
+  if (!list.length){ el.innerHTML = `<div class="empty-state">No location is at WARNING or above on this scenario day, so no public alert drafts are needed (simulated).</div>`; return; }
+  el.innerHTML = list.map(a => {
+    const meta = RISK_META[a.risk], t = alertTexts(a, ALERT_LANG);
+    const over = t.sms.length > 160;
+    return `<div class="fmt-card" style="border-left-color:${meta.color}">
+      <div class="alert-head"><span class="badge" style="background:${meta.color}">${meta.label}</span><strong>${a.loc.name}</strong></div>
+      <div class="fmt-grid">
+        <div class="fmt-box"><div class="fmt-label"><span>SMS</span><span class="${over?'over':''}">${t.sms.length}/160</span></div><div class="fmt-text">${esc(t.sms)}</div></div>
+        <div class="fmt-box"><div class="fmt-label"><span>RADIO SCRIPT${ALERT_LANG==='sw'?' (KISWAHILI, DRAFT)':''}</span></div><div class="fmt-text">${esc(t.radio)}</div></div>
+        <div class="fmt-box"><div class="fmt-label"><span>DOOR-TO-DOOR BRIEF</span><span>ELDERS · HEALTH PROMOTERS · VOLUNTEERS</span></div><div class="fmt-text">${esc(t.door)}${ALERT_LANG==='sw'?' <i>(English; messengers deliver it in the local language.)</i>':''}</div></div>
+      </div></div>`;
+  }).join('');
+}
+function renderStaging(assessments){
+  const el = document.getElementById('stagingPanel');
+  const roads = {};
+  ASSETS.filter(x => x.type === 'road').forEach(r => { roads[r.linkedLocation] = r; });
+  const rows = assessments.map(a => {
+    const d = daysToDanger(a), rk = RISK_META[a.risk];
+    let status, color;
+    if (d === 0){ status = "Staging window has closed: the danger level has been reached. Rely on supplies already in place, and check access before sending trucks."; color = RISK_META.critical.color; }
+    else if (d !== null && d <= STAGING_LEAD_DAYS){ status = `STAGE NOW: the danger level is about ${d} day${d>1?'s':''} away, inside the ${STAGING_LEAD_DAYS}-day window needed to truck supplies. Send family shelter kits and other non-food items before access is cut.`; color = RISK_META.severe.color; }
+    else if (d !== null){ status = `About ${d} days to the danger level: prepare stock and routes; staging not yet triggered.`; color = RISK_META.warning.color; }
+    else { status = "Not rising at the moment: no staging needed yet."; color = RISK_META.none.color; }
+    const road = roads[a.locId];
+    const crossing = road ? `Crossing: ${a.risk === 'critical' ? 'CLOSED' : 'OPEN'} (simulated)` : "No mapped crossing";
+    return `<div class="stage-row" style="border-left-color:${color}"><b>${a.loc.name}</b><div>${status}<br><span style="color:var(--muted)">${crossing} · level ${a.level.toFixed(1)}m of ${a.danger.toFixed(1)}m</span></div></div>`;
+  }).join('');
+  el.innerHTML = rows + `<p class="fmt-note">Reported but not modelled: roads around Arer and Tulia on the Garissa–Madogo corridor flood or breach early (disaster-management officer; coordinates not yet mapped).</p>`;
+}
+
 function render(dayIdx){
   document.getElementById('dateReadout').textContent = 'Day ' + (dayIdx+1);
   const assessments = LOCATIONS.map(loc => ({...assess(loc.id, dayIdx), loc}));
@@ -650,6 +768,10 @@ function render(dayIdx){
     });
   }
 
+  lastPriority = withPriority;
+  renderAlertFormats(withPriority);
+  renderStaging(assessments);
+
   // response organization directory — live status computed from current actions
   const orgActivity = {};
   Object.keys(ORG_DIRECTORY).forEach(org => orgActivity[org] = []);
@@ -680,6 +802,14 @@ function render(dayIdx){
   });
 }
 
+function setLang(l){
+  ALERT_LANG = l;
+  document.getElementById('langEn').classList.toggle('on', l==='en'); document.getElementById('langEn').setAttribute('aria-pressed', l==='en');
+  document.getElementById('langSw').classList.toggle('on', l==='sw'); document.getElementById('langSw').setAttribute('aria-pressed', l==='sw');
+  renderAlertFormats(lastPriority);
+}
+document.getElementById('langEn').addEventListener('click', () => setLang('en'));
+document.getElementById('langSw').addEventListener('click', () => setLang('sw'));
 const slider = document.getElementById('daySlider');
 slider.addEventListener('input', () => render(parseInt(slider.value)));
 let playing = false, playTimer = null;
