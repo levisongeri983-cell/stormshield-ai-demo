@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StormShield AI — Prototype demo (simulated scenario)</title>
-<meta name="description" content="StormShield AI — demo of a flood-risk coordination prototype for Tana River County, Kenya. Runs on a simulated scenario with illustrative data and thresholds: rule-based risk scoring, explainable recommendations (Trace) and routing to responsible agencies.">
-<meta property="og:title" content="StormShield AI — Coordination prototype demo (simulated scenario)">
+<title>Tahadhari — Prototype demo (simulated scenario)</title>
+<meta name="description" content="Tahadhari — demo of a flood-risk coordination prototype for Tana River County, Kenya. Runs on a simulated scenario with illustrative data and thresholds: rule-based risk scoring, explainable recommendations (Trace) and routing to responsible agencies.">
+<meta property="og:title" content="Tahadhari — Coordination prototype demo (simulated scenario)">
 <meta property="og:description" content="An interactive demo of a flood-risk coordination prototype: simulated flood scenario, rule-based explainable recommendations, and routing to responsible agencies for Tana River County, Kenya.">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="StormShield AI — Coordination prototype demo (simulated scenario)">
+<meta name="twitter:title" content="Tahadhari — Coordination prototype demo (simulated scenario)">
 <meta name="twitter:description" content="Simulated flood scenario, explainable rule-based recommendations, and agency routing — Module 1 of a modular coordination prototype.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 220'%3E%3Cpath d='M100,8 L178,38 L178,108 C178,168 140,202 100,214 C60,202 22,168 22,108 L22,38 Z' fill='%230B2E33' stroke='%232E7D8C' stroke-width='9'/%3E%3Cpath d='M58,58 C58,90 88,100 100,150' fill='none' stroke='%232E7D8C' stroke-width='8'/%3E%3Cpath d='M100,42 L100,150' fill='none' stroke='%232E7D8C' stroke-width='8'/%3E%3Cpath d='M142,58 C142,90 112,100 100,150' fill='none' stroke='%232E7D8C' stroke-width='8'/%3E%3Ccircle cx='100' cy='150' r='10' fill='%232E7D8C'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -96,6 +96,9 @@
   .alert-msg{font-size:13px; line-height:1.5;}
   .action{font-size:12px; color:var(--muted); margin-top:7px; padding-left:0; display:flex; gap:8px; align-items:baseline;}
   .action .arrow{color:var(--teal-light);}
+  .src-box{background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin-bottom:18px;}
+  .src-compare{font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
+  .src-compare b{color:var(--deep);}
   .fmt-note{font-size:12.5px; line-height:1.55; color:var(--muted); margin:-4px 0 12px; max-width:900px;}
   .lang-row{display:flex; gap:8px; margin-bottom:14px;}
   .lang-btn{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:6px 12px; border-radius:20px; border:1px solid var(--line); background:#fff; color:var(--deep); cursor:pointer;}
@@ -206,8 +209,8 @@
         <circle cx="100" cy="150" r="10" fill="#F6F4EE"/>
       </svg>
       <div>
-        <div class="wordmark">STORMSHIELD AI — PROTOTYPE</div>
-        <h1>Coordination Platform</h1>
+        <div class="wordmark">TAHADHARI — PROTOTYPE</div>
+        <h1>Flood coordination prototype</h1>
         <p class="tagline">A prototype coordination layer for flood response: it turns a river-risk reading into a prioritized, explainable action addressed to the responsible agency. This page is Module 1 (flood, Tana River County, Kenya) running on a simulated scenario. It is a proof of concept, not a deployed system.</p>
         <p class="tagline" style="margin-top:6px; font-size:12px; color:#7FA8AC;">Watershed Kernel (coordination core) · Trace (explainability layer) · No machine-learning model is used</p>
       </div>
@@ -265,6 +268,16 @@
     Left: OpenStreetMap tiles with approximate town coordinates. Right: simulated river-level readings (solid) and a 3-day linear extrapolation (dashed). The dashed line is a trend extrapolation, not a hydrological forecast and not a trained model.
   </p>
 
+  <div class="section-label">Decision basis — what happens when a forecast underestimates (simulated)</div>
+  <div class="src-box">
+    <p class="fmt-note" style="margin:0 0 10px">In November 2023 the GloFAS forecast stayed below the Kenya Red Cross trigger while river gauges showed the river at alarm level, and the Red Cross activated on the gauge readings (Red Cross early action protocol annual report, May 2024). This switch reproduces that situation with invented numbers: the simulated forecast reads 20% below the simulated gauge. "Gauge overrides forecast" takes the higher of the two risk levels. "Forecast only" uses the forecast alone.</p>
+    <div class="lang-row" role="group" aria-label="Decision basis">
+      <button type="button" class="lang-btn on" id="modeOverride" aria-pressed="true">Gauge overrides forecast</button>
+      <button type="button" class="lang-btn" id="modeForecast" aria-pressed="false">Forecast only</button>
+    </div>
+    <div class="src-compare" id="srcCompare"></div>
+  </div>
+
   <div class="section-label">Risk assessment — 5 locations, Tana River flood plain (simulated readings, illustrative thresholds)</div>
   <div class="grid" id="locationGrid"></div>
 
@@ -272,7 +285,7 @@
   <div id="alertFeed"></div>
 
   <div class="section-label">Alert formats — drafts shaped by resident and responder input (simulated; not sent)</div>
-  <p class="fmt-note">Informal accounts from flood survivors said warnings reached them through the river itself, neighbours, relatives and radio that gave only broad statements, and that they moved when elders, community health promoters or Red Cross volunteers came to the door. These drafts are one attempt at a more specific message for each channel. The timing is a simple trend estimate in whole days, not an hour-by-hour forecast. Kiswahili text is a machine-written draft and must be reviewed by a native speaker and a local radio producer before any use. Nothing here has been tested with residents.</p>
+  <p class="fmt-note">Informal accounts from flood survivors said warnings reached them through the river itself, neighbours, relatives and radio that gave only broad statements, and that they moved when elders, community health promoters or Red Cross volunteers came to the door. Contacts who saw earlier drafts said they would not evacuate on a text alone: they would check the river or local gauge themselves, they know water from Wenje takes roughly 24 to 36 hours to reach the delta, they trust a message that comes from the Red Cross, and they would most like to hear it read live on radio by a presenter they know by name. These drafts now carry the gauge reading, an upstream note and a sender label for that reason. The timing is a simple trend estimate in whole days, and the 24 to 36 hour travel time is resident knowledge, not verified here. Kiswahili text is a machine-written draft and must be reviewed by a native speaker and a local radio producer before any use. Nothing here has been tested for whether people would act on it.</p>
   <div class="lang-row" role="group" aria-label="Language of the draft alerts">
     <button type="button" class="lang-btn on" id="langEn" aria-pressed="true">English</button>
     <button type="button" class="lang-btn" id="langSw" aria-pressed="false">Kiswahili (draft)</button>
@@ -302,7 +315,7 @@
     <div class="roadmap-grid">
       <div class="rm-card built">
         <div class="rm-title">BUILT</div>
-        <div class="rm-item">Kernel + module interface (Python, with automated tests)</div>
+        <div class="rm-item">Kernel + module interface (Python reference implementation, 70 automated tests)</div>
         <div class="rm-item">Flood module with GloFAS integration (Python prototype; not connected to this web page)</div>
         <div class="rm-item">Rule-based action routing to responsible agencies</div>
         <div class="rm-item">Rule-based assistant over simulated data (this page)</div>
@@ -317,8 +330,9 @@
       </div>
       <div class="rm-card next">
         <div class="rm-title">→ PHASE 3</div>
-        <div class="rm-item">SMS/USSD and radio alert formats: drafts in this page, not yet tested with residents</div>
-        <div class="rm-item">Access planning: a simple 3-day staging rule is in this page. Road and crossing risk is not modelled; a disaster-management officer named Arer and Tulia on the Garissa–Madogo corridor as early to flood (needs road data; flash floods are not covered by GloFAS)</div>
+        <div class="rm-item">SMS/USSD and radio alert formats: drafts in this page, reviewed informally by a few contacts, not yet tested for action</div>
+        <div class="rm-item">Community gauge readings from trusted local observers as a data input, and resident knowledge of travel times checked against gauge data (idea from a resident who checks the local gauge herself)</div>
+        <div class="rm-item">Access planning: a simple 3-day staging rule is in this page. Road and crossing risk is not modelled; a disaster-management officer named Arer and Tulla on the A3 between Bangale and Madogo as early to flood (needs road data; flash floods are not covered by GloFAS)</div>
         <div class="rm-item">Live two-way API integration with pilot agency</div>
         <div class="rm-item">ML-trained prediction model, replacing trend projection</div>
       </div>
@@ -339,11 +353,11 @@
       <div class="arrow-b">→</div>
       <div class="arch-box"><b>Action Routing</b>Ranked across hazards, addressed to the responsible organization (illustrative).</div>
     </div>
-    <p>This page simulates the Python prototype's logic on a scripted scenario: threshold-based risk scoring on river-level trends, ranking by the hazard-agnostic Watershed Kernel, routing to responder organizations, and explanation through Trace. Today there is one working flood module and one minimal wildfire stub that plugs into the kernel with no kernel changes. The Python codebase also contains a GloFAS data integration and 19 automated tests, which are not part of this web page.</p>
+    <p>This page simulates the Python prototype's logic on a scripted scenario: threshold-based risk scoring on river-level trends, ranking by the hazard-agnostic Watershed Kernel, routing to responder organizations, and explanation through Trace. Today there is one working flood module and one minimal wildfire stub that plugs into the kernel with no kernel changes. A Python reference implementation of the same logic (github.com/levisongeri983-cell/tahadhari) has a GloFAS data adapter and 70 automated tests; neither is part of this web page.</p>
   </div>
 </main>
 
-<footer>Prototype for the MIT Solve Global Climate Challenge · Tana River County, Kenya · Simulated scenario · Illustrative thresholds, not official flood-warning levels · Map © OpenStreetMap contributors</footer>
+<footer>Tahadhari (formerly StormShield AI) · Prototype for the MIT Solve Global Climate Challenge · Tana River County, Kenya · Simulated scenario · Illustrative thresholds, not official flood-warning levels · Map © OpenStreetMap contributors</footer>
 
 <script>
 const DANGER = { garsen:5.5, hola:4.5, wenje:6.0, bura:4.0, ngao:5.0 };
@@ -366,6 +380,14 @@ const ASSETS = [
   {id:"shelter_hola", name:"Hola Stadium Shelter", type:"shelter", lat:-1.4930, lon:40.0265, capacity:500},
   {id:"road_garsen", name:"Garsen River Crossing", type:"road", lat:-2.2775, lon:40.1210, linkedLocation:"garsen"},
   {id:"road_wenje", name:"Wenje River Crossing", type:"road", lat:-1.1700, lon:40.0865, linkedLocation:"wenje"},
+];
+// Road hotspots reported by a disaster-management officer and in public KeNHA / news reports.
+// Coordinates are NOT filled in yet: add [lat, lon] for each (e.g. from a map pin) and markers appear.
+const HOTSPOTS = [
+  {name:"Arer (A3, between Bangale and Madogo)", latlon:null, note:"Cut by flooding on 9 April 2024; a bus was marooned near Tulla village (KeNHA, news reports)."},
+  {name:"Tulla village area (A3)", latlon:null, note:"Reported with Arer as one of the most affected sections on 9 April 2024."},
+  {name:"Mororo (A3, between Madogo and Garissa)", latlon:null, note:"Flooded in April 2024 (KeNHA)."},
+  {name:"Kona Punda (A3, near Mororo)", latlon:null, note:"Major washout in November 2023; flooded again in April 2024 (KeNHA)."},
 ];
 const READINGS = {
   garsen:[3.1,3.3,3.8,4.6,5.4,5.9,6.1], hola:[2.8,2.9,3.1,3.6,4.2,4.6,4.8],
@@ -395,7 +417,7 @@ const ORG_DIRECTORY = {
   "County Disaster Mgmt Unit": { role: "County-level coordination & standby command", coverage: "Tana River County", contact: "Sub-County HQ, Garsen" },
   "Kenya Red Cross Society": { role: "Shelter operations & rescue deployment", coverage: "Tana River / Coast Region", contact: "Regional office, Hola" },
   "Kenya National Highways Authority": { role: "Road & crossing closures, infrastructure status", coverage: "Tana River road network", contact: "Regional engineer, Hola" },
-  "StormShield Ops": { role: "Automated monitoring & escalation", coverage: "All monitored locations", contact: "n/a (system role, planned)" },
+  "Tahadhari Ops": { role: "Automated monitoring & escalation", coverage: "All monitored locations", contact: "n/a (system role, planned)" },
 };
 
 const ORG_ROUTE = {
@@ -405,16 +427,16 @@ const ORG_ROUTE = {
   shelter: "Kenya Red Cross Society",
   alert: "County Disaster Mgmt Unit",
   notify: "County Disaster Mgmt Unit",
-  monitor: "StormShield Ops",
+  monitor: "Tahadhari Ops",
   stage: "Kenya Red Cross Society",
 };
 
-function assess(locId, dayIdx){
-  const danger = DANGER[locId];
-  const level = READINGS[locId][dayIdx];
-  const prevLevel = dayIdx > 0 ? READINGS[locId][dayIdx-1] : level;
+// Simulated sources: gauge-style readings (READINGS) and a model forecast that underestimates them.
+// The numbers are invented; the situation follows the Kenya Red Cross account of November 2023.
+let SOURCE_MODE = "override";   // "override" = gauge can override forecast; "forecast" = forecast only
+const FORECAST_BIAS = 0.8;
+function classify(level, prevLevel, rainUpstream, danger){
   const trend = level - prevLevel;
-  const rainUpstream = RAIN_UPSTREAM[locId][dayIdx];
   let risk, score;
   if (level >= danger) { risk = "critical"; score = Math.min(1.0, 0.85 + (level-danger)/5); }
   else if (level >= danger - MARGIN) {
@@ -422,9 +444,30 @@ function assess(locId, dayIdx){
     score = 0.55 + (level - (danger-MARGIN)) / (MARGIN*2);
   } else if (rainUpstream >= 60 || trend > 0.5) { risk = "watch"; score = 0.3 + Math.min(rainUpstream/200, 0.2); }
   else { risk = "none"; score = Math.max(0, level/danger*0.3); }
+  return {risk, score, trend};
+}
+function assess(locId, dayIdx, mode){
+  mode = mode || SOURCE_MODE;
+  const danger = DANGER[locId];
+  const rainUpstream = RAIN_UPSTREAM[locId][dayIdx];
+  const gLevel = READINGS[locId][dayIdx];
+  const gPrev = dayIdx > 0 ? READINGS[locId][dayIdx-1] : gLevel;
+  const fLevel = gLevel * FORECAST_BIAS, fPrev = gPrev * FORECAST_BIAS;
+  const g = classify(gLevel, gPrev, rainUpstream, danger);
+  const f = classify(fLevel, fPrev, rainUpstream, danger);
+  let used, src, level;
+  if (mode === "override" && WEIGHT[g.risk] >= WEIGHT[f.risk]) { used = "gauge"; src = g; level = gLevel; }
+  else { used = "forecast"; src = f; level = fLevel; }
+  let basis;
+  if (mode === "forecast") basis = "forecast only (gauge not used)";
+  else if (WEIGHT[g.risk] > WEIGHT[f.risk]) basis = "gauge overrides the lower forecast";
+  else if (WEIGHT[g.risk] === WEIGHT[f.risk]) basis = "gauge and forecast agree";
+  else basis = "forecast raises the alert above the gauge";
+  const trend = src.trend;
   const explanation = `${level.toFixed(1)}m vs ${danger.toFixed(1)}m danger threshold, `+
     `${trend>0?'rising':'stable/falling'} (${trend>=0?'+':''}${trend.toFixed(1)}m), ${rainUpstream}mm upstream rain (72h).`;
-  return {locId, risk, score, level, danger, trend, rainUpstream, explanation};
+  return {locId, risk:src.risk, score:src.score, level, danger, trend, rainUpstream, explanation, used, basis,
+          gauge:{level:gLevel, risk:g.risk}, forecast:{level:fLevel, risk:f.risk}};
 }
 
 function actionsFor(a){
@@ -489,6 +532,10 @@ function initMap(){
     const icon = L.divIcon({className:'', html, iconSize:[18,18], iconAnchor:[9,9]});
     const m = L.marker([asset.lat, asset.lon], {icon}).addTo(map);
     assetMarkers[asset.id] = m;
+  });
+  HOTSPOTS.filter(x => Array.isArray(x.latlon) && x.latlon.length === 2).forEach(x => {
+    L.circleMarker(x.latlon, {radius:8, color:'#A13A2E', weight:3, fillColor:'#fff', fillOpacity:1}).addTo(map)
+      .bindPopup(`<b>${x.name}</b><br>Reported road hotspot (not modelled)<br>${x.note}`);
   });
 }
 function updateAssets(assessments){
@@ -555,7 +602,10 @@ function drawSparkline(canvas, observed, dayIdx, danger){
 function buildTrace(a, acts, dayIdx){
   const confidence = (dayIdx + 1) >= 3 ? 0.75 : 0.55; // mirrors flood_module.py: needs >=3 readings
   return [
-    {label:"DATA", val:`${a.level.toFixed(1)}m simulated river-level reading`},
+    {label:"DATA", val:`${a.level.toFixed(1)}m simulated ${a.used} level`},
+    {label:"SOURCES", val: SOURCE_MODE === "forecast"
+        ? `forecast ${a.forecast.level.toFixed(1)}m → ${RISK_META[a.forecast.risk].label}; gauge not used. Decision: ${a.basis}.`
+        : `forecast ${a.forecast.level.toFixed(1)}m → ${RISK_META[a.forecast.risk].label}; gauge ${a.gauge.level.toFixed(1)}m → ${RISK_META[a.gauge.risk].label}. Decision: ${a.basis}.`},
     {label:"THRESHOLD CHECK", val:`vs ${a.danger.toFixed(1)}m danger, ${a.trend>=0?'+':''}${a.trend.toFixed(1)}m trend`},
     {label:"CONFIDENCE", val:`${confidence.toFixed(2)} — heuristic from days of history, not a calibrated probability`},
     {label:"RECOMMENDATION", val:RISK_META[a.risk].label},
@@ -626,6 +676,8 @@ function daysToDanger(a){
   if (a.trend <= 0.05) return null;
   return Math.max(1, Math.ceil((a.danger - a.level) / a.trend));
 }
+const DELTA_LOCS = ["garsen","ngao"], UPSTREAM_REF = "wenje";
+let lastAssess = {};
 const TXT = {
   en: {
     risk:{warning:"WARNING", severe:"SEVERE", critical:"CRITICAL"},
@@ -634,10 +686,14 @@ const TXT = {
     flat:"is not rising at the moment",
     nowS:"at danger level", soonS:d => `danger level in ~${d}d`, flatS:"not rising now",
     shelterIs:s => `${s} is the planned shelter`, shelterTbc:"the nearest shelter will be confirmed",
-    shelterS:s => s || "nearest shelter TBC",
-    sms:(r,n,t,s) => `FLOOD ${r} - ${n}: river ${t}. Move to higher ground now. Shelter: ${s}. [SIMULATED]`,
-    radio:(n,t,sh) => `Attention listeners in ${n}. The river near ${n} ${t}. Families in low-lying areas should prepare to move to higher ground; ${sh}. Village elders and community health promoters will visit households. This is an estimate and may change, so keep listening for updates. [Simulated example, not a real alert.]`,
-    door:(n,t,s) => `Visit households in the low-lying parts of ${n}. Tell them: the river ${t}; move children, elderly people and livestock to higher ground; go to ${s}; take water, documents and medicines. Note which households need help and report them to the county disaster unit or Red Cross volunteers. Record who has been reached.`,
+    upL:r => `Upstream, Wenje is at ${r}; water from Wenje usually takes about 24 to 36 hours to reach the delta.`,
+    upS:" Wenje high; delta in ~1-1.5 days.",
+    reading:(n,lv,dg) => `The river reading near ${n} is ${lv} metres; the danger level is ${dg}.`,
+    check:"You can also check your local river gauge or stream to see how fast it is rising.",
+    smsParts:(r,n,short,up,shelter) => ({core:`FLOOD ${r} - ${n}: river ${short}.`, up, move:" Move to higher ground now.", shelter:` Shelter: ${shelter}.`, tag:" [SIMULATED]"}),
+    shelterS:s => s || "ask village elders or volunteers",
+    radio:(n,t,sh,rd,up,ck,mv) => `Attention listeners in ${n}. The river near ${n} ${t}. ${rd}${up?" "+up:""} Families in low-lying areas should ${mv} to higher ground; ${sh}. ${ck} Village elders and community health promoters will visit households. This is an estimate and may change, so keep listening for updates. [Simulated example, not a real alert.]`,
+    door:(n,t,s,rd,up) => `Visit households in the low-lying parts of ${n}. Tell them: the river ${t}. ${rd}${up?" "+up:""} Move children, elderly people and livestock to higher ground; go to ${s}; take water, documents and medicines. Suggest they also check the local gauge or stream. Note which households need help and report them to the county disaster unit or Red Cross volunteers. Record who has been reached.`,
   },
   sw: {
     risk:{warning:"ONYO", severe:"ONYO KALI", critical:"HATARI"},
@@ -646,9 +702,13 @@ const TXT = {
     flat:"haupandi kwa sasa",
     nowS:"umefikia hatari", soonS:d => `hatari baada ya ~siku ${d}`, flatS:"haupandi sasa",
     shelterIs:s => `${s} ndiyo makazi yaliyopangwa`, shelterTbc:"makazi ya karibu yatathibitishwa",
-    shelterS:s => s || "makazi ya karibu yatathibitishwa",
-    sms:(r,n,t,s) => `TAHADHARI YA MAFURIKO (${r}) - ${n}: mto ${t}. Hamia sehemu za juu sasa. Makazi: ${s}. [MFANO]`,
-    radio:(n,t,sh) => `Wasikilizaji wa ${n}: mto karibu na ${n} ${t}. Familia za maeneo ya chini zijiandae kuhamia sehemu za juu; ${sh}. Wazee wa kijiji na wahudumu wa afya ya jamii watatembelea kaya. Hii ni makadirio na inaweza kubadilika, endeleeni kusikiliza. [Mfano wa majaribio, si tahadhari halisi.]`,
+    upL:r => `Juu ya mto, Wenje iko katika hali ya ${r}; maji kutoka Wenje kwa kawaida huchukua takriban saa 24 hadi 36 kufika delta.`,
+    upS:" Wenje juu; delta baada ya ~siku 1-1.5.",
+    reading:(n,lv,dg) => `Kipimo cha mto karibu na ${n} ni mita ${lv}; kiwango cha hatari ni mita ${dg}.`,
+    check:"Pia mnaweza kuangalia kipimo cha mto au kijito cha eneo lenu kuona kinavyopanda kwa kasi.",
+    smsParts:(r,n,short,up,shelter) => ({core:`TAHADHARI YA MAFURIKO (${r}) - ${n}: mto ${short}.`, up, move:" Hamia sehemu za juu sasa.", shelter:` Makazi: ${shelter}.`, tag:" [MFANO]"}),
+    shelterS:s => s || "waulize wazee au wahudumu",
+    radio:(n,t,sh,rd,up,ck,mv) => `Wasikilizaji wa ${n}: mto karibu na ${n} ${t}. ${rd}${up?" "+up:""} Familia za maeneo ya chini ${mv} sehemu za juu; ${sh}. ${ck} Wazee wa kijiji na wahudumu wa afya ya jamii watatembelea kaya. Hii ni makadirio na inaweza kubadilika, endeleeni kusikiliza. [Mfano wa majaribio, si tahadhari halisi.]`,
     door:null,
   },
 };
@@ -658,11 +718,24 @@ function alertTexts(a, lang){
   const short = d === 0 ? T.nowS : d === null ? T.flatS : T.soonS(d);
   const shelter = SHELTER_BY_LOC[a.locId];
   const shelterLine = shelter ? T.shelterIs(shelter) : T.shelterTbc;
-  const doorShelter = shelter || TXT.en.shelterS();
+  const doorShelter = shelter || "the nearest shelter (to be confirmed with the county)";
+  const upRef = lastAssess[UPSTREAM_REF];
+  const useUp = DELTA_LOCS.includes(a.locId) && upRef && WEIGHT[upRef.risk] >= WEIGHT.warning;
+  const upLong = useUp ? T.upL(T.risk[upRef.risk]) : "";
+  const upLongEn = useUp ? TXT.en.upL(TXT.en.risk[upRef.risk]) : "";
+  const upShort = useUp ? T.upS : "";
+  const rd = T.reading(a.loc.name, a.level.toFixed(1), a.danger.toFixed(1));
+  const rdEn = TXT.en.reading(a.loc.name, a.level.toFixed(1), a.danger.toFixed(1));
+  // SMS: keep within 160 characters by dropping the shelter name, then the upstream note
+  const parts = T.smsParts(T.risk[a.risk], a.loc.name, short, upShort, T.shelterS(shelter));
+  let order = ["core","up","move","shelter","tag"];
+  let sms = order.map(k => parts[k]).join("");
+  if (sms.length > 160){ order = order.filter(k => k !== "shelter"); sms = order.map(k => parts[k]).join(""); }
+  if (sms.length > 160){ order = order.filter(k => k !== "up"); sms = order.map(k => parts[k]).join(""); }
   return {
-    sms: T.sms(T.risk[a.risk], a.loc.name, short, T.shelterS(shelter)),
-    radio: T.radio(a.loc.name, long, shelterLine),
-    door: TXT.en.door(a.loc.name, d === 0 ? TXT.en.now : d === null ? TXT.en.flat : TXT.en.soon(d), doorShelter),
+    sms,
+    radio: T.radio(a.loc.name, long, shelterLine, rd, upLong, T.check, (d === 0 || a.risk === 'critical') ? (lang === 'sw' ? 'zihamie' : 'move') : (lang === 'sw' ? 'zijiandae kuhamia' : 'prepare to move')),
+    door: TXT.en.door(a.loc.name, d === 0 ? TXT.en.now : d === null ? TXT.en.flat : TXT.en.soon(d), doorShelter, rdEn, upLongEn),
   };
 }
 function renderAlertFormats(priority){
@@ -675,8 +748,8 @@ function renderAlertFormats(priority){
     return `<div class="fmt-card" style="border-left-color:${meta.color}">
       <div class="alert-head"><span class="badge" style="background:${meta.color}">${meta.label}</span><strong>${a.loc.name}</strong></div>
       <div class="fmt-grid">
-        <div class="fmt-box"><div class="fmt-label"><span>SMS</span><span class="${over?'over':''}">${t.sms.length}/160</span></div><div class="fmt-text">${esc(t.sms)}</div></div>
-        <div class="fmt-box"><div class="fmt-label"><span>RADIO SCRIPT${ALERT_LANG==='sw'?' (KISWAHILI, DRAFT)':''}</span></div><div class="fmt-text">${esc(t.radio)}</div></div>
+        <div class="fmt-box"><div class="fmt-label"><span>SMS · FROM A TRUSTED SENDER, E.G. RED CROSS (ILLUSTRATIVE)</span><span class="${over?'over':''}">${t.sms.length}/160</span></div><div class="fmt-text">${esc(t.sms)}</div></div>
+        <div class="fmt-box"><div class="fmt-label"><span>RADIO SCRIPT${ALERT_LANG==='sw'?' (KISWAHILI, DRAFT)':''} · FOR A TRUSTED LOCAL PRESENTER TO READ LIVE, IN THEIR OWN WORDS</span></div><div class="fmt-text">${esc(t.radio)}</div></div>
         <div class="fmt-box"><div class="fmt-label"><span>DOOR-TO-DOOR BRIEF</span><span>ELDERS · HEALTH PROMOTERS · VOLUNTEERS</span></div><div class="fmt-text">${esc(t.door)}${ALERT_LANG==='sw'?' <i>(English; messengers deliver it in the local language.)</i>':''}</div></div>
       </div></div>`;
   }).join('');
@@ -696,9 +769,24 @@ function renderStaging(assessments){
     const crossing = road ? `Crossing: ${a.risk === 'critical' ? 'CLOSED' : 'OPEN'} (simulated)` : "No mapped crossing";
     return `<div class="stage-row" style="border-left-color:${color}"><b>${a.loc.name}</b><div>${status}<br><span style="color:var(--muted)">${crossing} · level ${a.level.toFixed(1)}m of ${a.danger.toFixed(1)}m</span></div></div>`;
   }).join('');
-  el.innerHTML = rows + `<p class="fmt-note">Reported but not modelled: roads around Arer and Tulia on the Garissa–Madogo corridor flood or breach early (disaster-management officer; coordinates not yet mapped).</p>`;
+  el.innerHTML = rows + `<p class="fmt-note">Reported but not modelled: a disaster-management officer said roads at Arer and Tulla flood or breach early. Public reports agree: on 9 April 2024 flooding cut the A3 at Arer, between Bangale and Madogo in Tana River County, and a bus was marooned near Tulla village. Mororo and Kona Punda, between Madogo and Garissa, flooded in November 2023 and April 2024. These locations are not yet mapped.</p>
+    <p class="fmt-note">Residents describe about 24 to 36 hours for water to travel from Wenje to the delta. That is shorter than the three days relief trucks need, so staging for the delta cannot wait for an upstream rise alone. It has to start from earlier signals such as upstream rainfall and forecasts.</p>`;
 }
 
+function renderSourceCompare(dayIdx){
+  const n = mode => LOCATIONS.filter(l => WEIGHT[assess(l.id, dayIdx, mode).risk] >= WEIGHT.warning).length;
+  const f = n("forecast"), o = n("override");
+  document.getElementById('srcCompare').innerHTML =
+    `On ${DATES[dayIdx]}: the forecast alone puts <b>${f} of ${LOCATIONS.length}</b> locations at WARNING or above; letting the gauge override puts <b>${o} of ${LOCATIONS.length}</b>. (Simulated numbers.)`;
+}
+function setMode(m){
+  SOURCE_MODE = m;
+  document.getElementById('modeOverride').classList.toggle('on', m === 'override');
+  document.getElementById('modeForecast').classList.toggle('on', m === 'forecast');
+  document.getElementById('modeOverride').setAttribute('aria-pressed', m === 'override');
+  document.getElementById('modeForecast').setAttribute('aria-pressed', m === 'forecast');
+  render(parseInt(document.getElementById('daySlider').value));
+}
 function render(dayIdx){
   document.getElementById('dateReadout').textContent = 'Day ' + (dayIdx+1);
   const assessments = LOCATIONS.map(loc => ({...assess(loc.id, dayIdx), loc}));
@@ -768,7 +856,9 @@ function render(dayIdx){
     });
   }
 
+  renderSourceCompare(dayIdx);
   lastPriority = withPriority;
+  lastAssess = {}; assessments.forEach(x => { lastAssess[x.locId] = x; });
   renderAlertFormats(withPriority);
   renderStaging(assessments);
 
@@ -802,6 +892,8 @@ function render(dayIdx){
   });
 }
 
+document.getElementById('modeOverride').addEventListener('click', () => setMode('override'));
+document.getElementById('modeForecast').addEventListener('click', () => setMode('forecast'));
 function setLang(l){
   ALERT_LANG = l;
   document.getElementById('langEn').classList.toggle('on', l==='en'); document.getElementById('langEn').setAttribute('aria-pressed', l==='en');
